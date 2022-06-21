@@ -1,0 +1,15 @@
+{
+  "name": "beserver",
+  "version": "1.0.0",
+  "description": "Server for BetterEvades",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Taco",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "http": "^0.0.1-security",
+    "simple-json-db": "^2.0.0",
+    "socket.io": "^4.5.1"
+  }
+}
