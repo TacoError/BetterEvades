@@ -10,7 +10,7 @@ Frontend is in `public` folder
 
 Backend is in `server` folder
 
-Thats about all.
+That's about all.
 
 # Running
 
@@ -28,6 +28,7 @@ Packages
  - socket.io
  - http
  - simple-json-db
+ - crypto
 
 Software
 

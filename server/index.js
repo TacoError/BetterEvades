@@ -4,14 +4,18 @@ const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const crypto = require("crypto");
+const config = require("../config.json");
 
 const db = require("./database.js");
 db.initDatabase();
 
 app.use(express.static("../public"));
-server.listen(4000, () => {
+server.listen(config.port, () => {
     console.log("Opened at http://localhost:4000");
 });
+
+const players = new Map();
 
 io.on("connection", (socket) => {
     console.log("Connection made.")
@@ -38,6 +42,24 @@ io.on("connection", (socket) => {
             return;
         }
         io.to(socket.id).emit("loginResponse", login[1], true);
+        const id = crypto.randomBytes(15).toString("hex");
+        players.set(socket.id, {
+            id: id,
+            x: 0,
+            y: 0,
+            name: name,
+            color: Math.floor(Math.random() * 16777215).toString(16)
+        });
+        io.to(socket.id).emit("sid", id);
+    });
+    socket.on("keyUpdate", (keys) => {
+        const old = players.get(socket.id);
+        if (keys["w"]) old.y -= config.speed;
+        if (keys["s"]) old.y += config.speed;
+        if (keys["a"]) old.x -= config.speed;
+        if (keys["d"]) old.x += config.speed;
+        players.set(socket.id, old);
+        io.to(socket.id).emit("playerUpdate", Array.from(players.values()));
     });
     socket.on("disconnect", () => {
 
