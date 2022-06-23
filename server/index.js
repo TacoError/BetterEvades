@@ -4,11 +4,18 @@ const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const crypto = require("crypto");
 const config = require("../config.json");
+
+const fs = require("fs");
+if (!fs.existsSync("store")) {
+    fs.mkdirSync("store");
+}
 
 const db = require("./database.js");
 db.initDatabase();
+
+const mapDB = require("./mapDatabase.js");
+mapDB.initDatabase();
 
 app.use(express.static("../public"));
 server.listen(config.port, () => {
@@ -16,9 +23,11 @@ server.listen(config.port, () => {
 });
 
 const players = new Map();
+let curr = 0;
 
 io.on("connection", (socket) => {
     console.log("Connection made.")
+    curr++;
     socket.on("register", (name, password) => {
         if (!name.match("^[a-zA-Z0-9_\.\-]*$")) {
             io.to(socket.id).emit("registerResponse", "Illegal name.");
@@ -42,7 +51,7 @@ io.on("connection", (socket) => {
             return;
         }
         io.to(socket.id).emit("loginResponse", login[1], true);
-        const id = crypto.randomBytes(15).toString("hex");
+        const id = curr;
         players.set(socket.id, {
             id: id,
             x: 0,
@@ -62,8 +71,11 @@ io.on("connection", (socket) => {
         io.to(socket.id).emit("playerUpdate", Array.from(players.values()));
     });
     socket.on("disconnect", () => {
-
+        players.delete(socket.id);
         console.log("Connection terminated.");
     });
 });
 
+setInterval(() => {
+    mapDB.updateBalls();
+}, 50);

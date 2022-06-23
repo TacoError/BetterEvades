@@ -31,6 +31,7 @@ Packages
  - http
  - simple-json-db
  - crypto
+ - fs
 
 Software
 
