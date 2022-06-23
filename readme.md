@@ -16,6 +16,8 @@ That's about all.
 
 `git clone https://github.com/TacoError/BetterEvades`
 
+`cd BetterEvades`
+
 `cd server`
 
 `node .`

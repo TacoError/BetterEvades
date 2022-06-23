@@ -5,6 +5,7 @@ const crypto = require("crypto");
 
 module.exports = {
     initDatabase: () => {
+        db.sync();
         setInterval(() => {
             db.sync();
         }, 10000);
