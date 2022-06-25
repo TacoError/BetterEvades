@@ -57,7 +57,10 @@ io.on("connection", (socket) => {
             x: 0,
             y: 0,
             name: name,
-            color: Math.floor(Math.random() * 16777215).toString(16)
+            color: Math.floor(Math.random() * 16777215).toString(16),
+            drawing: false,
+            drawStart: {x: 0, y: 0},
+            updatedMousePos: {x: 0, y: 0},
         });
         io.to(socket.id).emit("sid", id);
     });
@@ -67,8 +70,26 @@ io.on("connection", (socket) => {
         if (keys["s"]) old.y += config.speed;
         if (keys["a"]) old.x -= config.speed;
         if (keys["d"]) old.x += config.speed;
+
+        if (!keys["r"] && old.drawing) {
+            old.drawing = false;
+            console.log("a");
+            mapDB.addWallToMap(old.drawStart.x, old.drawStart.y, old.updatedMousePos.x - old.drawStart.x, old.updatedMousePos.y - old.drawStart.y);
+        }
+        if (keys["r"] && !old.drawing) {
+            old.drawing = true;
+            console.log("e");
+            old.drawStart = old.updatedMousePos;
+        }
+
         players.set(socket.id, old);
         io.to(socket.id).emit("playerUpdate", Array.from(players.values()));
+        io.to(socket.id).emit("wallsUpdate", mapDB.getMap());
+    });
+    socket.on("mousePosUpdate", (pos) => {
+        const old = players.get(socket.id);
+        old.updatedMousePos = pos;
+        players.set(socket.id, old);
     });
     socket.on("disconnect", () => {
         players.delete(socket.id);

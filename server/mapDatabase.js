@@ -7,11 +7,11 @@ let activeBalls;
 
 module.exports = {
     initDatabase: () => {
-        if (!db.has("map")) db.set("walls", []);
+        if (!db.has("walls")) db.set("walls", []);
         if (!db.has("balls")) db.set("balls", []);
         if (!db.has("safeZones")) db.set("safeZones", []);
         db.sync();
-        map = db.get("map");
+        map = db.get("walls");
         balls = db.get("balls");
         safeZones = db.get("safeZones");
         activeBalls = db.get("balls");
@@ -62,6 +62,7 @@ module.exports = {
         return balls;
     },
     updateBalls: () => {
+        //TODO: collision checking, there is no collisions to detect as of right now tho...
         const newBalls = [];
         activeBalls.forEach(ball => {
             if (ball.dir === "down") ball.y += ball.speed;

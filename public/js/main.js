@@ -9,15 +9,25 @@ const socket = io("/");
 
 let canvas, ctx;
 let id = -1;
-let heldKeys = {"w": false, "a": false, "s": false, "d": false};
+// R = Draw box
+let heldKeys = {"w": false, "a": false, "s": false, "d": false, "r": false};
 let players = [];
+let walls = [];
+// Mouse to real canvas positions
+let mx, my;
+
+window.addEventListener("mousemove", (move) => {
+   const cBR = canvas.getBoundingClientRect();
+   mx = Math.round(move.clientX - cBR.left);
+   my = Math.round(move.clientY - cBR.top);
+});
 
 window.addEventListener("keydown", (key) => {
-    const k = key.key;
+    const k = key.key.toLowerCase();
     heldKeys[k] = true;
 });
 window.addEventListener("keyup", (key) => {
-    const k = key.key;
+    const k = key.key.toLowerCase();
     heldKeys[k] = false;
 });
 
@@ -38,6 +48,10 @@ socket.on("loginResponse", (response, go) => {
 
 socket.on("sid", (ide) => {
    id = ide;
+});
+
+socket.on("wallsUpdate", (wallsN) => {
+    walls = wallsN;
 });
 
 socket.on("playerUpdate", (playersN) => {
@@ -86,11 +100,23 @@ function animate() {
         ctx.fillText(player.name, (player.x - (ctx.measureText(player.name).width / 2)), player.y - 30);
         ctx.fill();
     }
+
+    for (const w in walls) {
+        const wall = walls[w];
+
+        ctx.fillStyle = "black";
+
+        ctx.beginPath();
+        ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+        ctx.fill();
+    }
+
 }
 
 function runKeyUpdate() {
     setInterval(() => {
         socket.emit("keyUpdate", heldKeys);
+        socket.emit("mousePosUpdate", {x: mx, y: my});
     }, 20);
 }
 
