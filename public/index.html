@@ -5,13 +5,14 @@
 </head>
 <body>
 <div id="login">
-    <h1>BetterEvades</h1>
-    <input id="name" type="text" placeholder="Username"><br>
-    <input id="password" type="password" placeholder="Password"><br>
-    <div id="buttons">
-        <button onclick="register()">Register</button><button onclick="login()">Login</button>
+    <h1 id="gameTitle" class="menuElement">BetterEvades</h1>
+    <input id="name" class="menuElement" type="text" placeholder="Username"><br>
+    <input id="password" class="menuElement" type="password" placeholder="Password"><br>
+    <div id="buttons" class="menuElement">
+        <button onclick="register()">Register</button>
+        <button onclick="login()">Login</button>
     </div><br>
-    <p1 id="update">...</p1>
+    <p1 id="update" class="menuElement">...</p1>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
 <script src="js/main.js"></script>

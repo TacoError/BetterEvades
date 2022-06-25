@@ -1,16 +1,27 @@
-console.log(` ______                            _______              _            
-(____  \\       _   _              (_______)            | |           
- ____)  ) ____| |_| |_  ____  ____ _____ _   _ ____  _ | | ____  ___ 
-|  __  ( / _  )  _)  _)/ _  )/ ___)  ___) | | / _  |/ || |/ _  )/___)
-| |__)  | (/ /| |_| |_( (/ /| |   | |____\\ V ( ( | ( (_| ( (/ /|___ |
-|______/ \\____)\\___)___)____)_|   |_______)_/ \\_||_|\\____|\\____|___/`);
+console.log(`
+██████╗░███████╗████████╗████████╗███████╗██████╗░  ███████╗██╗░░░██╗░█████╗░██████╗░███████╗░██████╗
+██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗  ██╔════╝██║░░░██║██╔══██╗██╔══██╗██╔════╝██╔════╝
+██████╦╝█████╗░░░░░██║░░░░░░██║░░░█████╗░░██████╔╝  █████╗░░╚██╗░██╔╝███████║██║░░██║█████╗░░╚█████╗░
+██╔══██╗██╔══╝░░░░░██║░░░░░░██║░░░██╔══╝░░██╔══██╗  ██╔══╝░░░╚████╔╝░██╔══██║██║░░██║██╔══╝░░░╚═══██╗
+██████╦╝███████╗░░░██║░░░░░░██║░░░███████╗██║░░██║  ███████╗░░╚██╔╝░░██║░░██║██████╔╝███████╗██████╔╝
+╚═════╝░╚══════╝░░░╚═╝░░░░░░╚═╝░░░╚══════╝╚═╝░░╚═╝  ╚══════╝░░░╚═╝░░░╚═╝░░╚═╝╚═════╝░╚══════╝╚═════╝░`);
+
+let asapFont = new FontFace(
+    "Pangolin",
+    "url(https://fonts.googleapis.com/css2?family=Asap:ital@1&family=Inter:wght@300&display=swap)"
+);
+
+asapFont.load().then((font) => {
+    document.fonts.add(font);
+    ctx.font = "30px Asap";
+});
 
 const socket = io("/");
 
 let canvas, ctx;
 let id = -1;
 // R = Draw box
-let heldKeys = {"w": false, "a": false, "s": false, "d": false, "r": false};
+let heldKeys = {"w": false, "a": false, "s": false, "d": false, "r": false, "Shift": false};
 let players = [];
 let walls = [];
 // Mouse to real canvas positions
@@ -87,13 +98,13 @@ function animate() {
 
         //Initial ball (player)
         ctx.beginPath();
-        ctx.arc(player.x, player.y, 25, 0, 2 * Math.PI, false);
+        ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI, false);
         ctx.fill();
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "grey";
         ctx.stroke();
 
-        ctx.fillStyle = "black";
-        ctx.font = "16px serif";
+        ctx.fillStyle = "grey";
+        ctx.font = "16px Asap";
 
         // Player name
         ctx.beginPath();
@@ -104,7 +115,7 @@ function animate() {
     for (const w in walls) {
         const wall = walls[w];
 
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "grey";
 
         ctx.beginPath();
         ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
@@ -127,6 +138,6 @@ function runGame() {
     canvas.height = window.innerHeight;
     ctx = canvas.getContext("2d");
     document.body.appendChild(canvas);
-    animate();
     runKeyUpdate();
+    animate();
 }

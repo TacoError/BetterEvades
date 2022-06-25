@@ -1,3 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Asap:ital@1&family=Inter:wght@300&display=swap');
 body {
     overflow: hidden;
+    background-color: black;
+    font-family: "Asap", "Inter";
+    text-align: center;
+}
+
+#gameTitle {
+    color: white;
+}
+
+#update {
+    color: white;
+    font-weight: 100;
+}
+
+.menuElement{
+    padding: 10px;
+    display: block;
+    margin: auto;
 }

@@ -17,6 +17,9 @@ db.initDatabase();
 const mapDB = require("./mapDatabase.js");
 mapDB.initDatabase();
 
+const physics = require("./physics.js");
+console.log(physics);
+
 app.use(express.static("../public"));
 server.listen(config.port, () => {
     console.log("Opened at http://localhost:4000");
@@ -56,40 +59,45 @@ io.on("connection", (socket) => {
             id: id,
             x: 0,
             y: 0,
+            radius: 25,
             name: name,
             color: Math.floor(Math.random() * 16777215).toString(16),
             drawing: false,
             drawStart: {x: 0, y: 0},
             updatedMousePos: {x: 0, y: 0},
+            usingMouse: false,
         });
         io.to(socket.id).emit("sid", id);
     });
     socket.on("keyUpdate", (keys) => {
-        const old = players.get(socket.id);
-        if (keys["w"]) old.y -= config.speed;
-        if (keys["s"]) old.y += config.speed;
-        if (keys["a"]) old.x -= config.speed;
-        if (keys["d"]) old.x += config.speed;
+        try{
+            const old = players.get(socket.id);
+            if (keys["w"]) old.y -= config.speed;
+            if (keys["s"]) old.y += config.speed;
+            if (keys["a"]) old.x -= config.speed;
+            if (keys["d"]) old.x += config.speed;
 
-        if (!keys["r"] && old.drawing) {
-            old.drawing = false;
-            console.log("a");
-            mapDB.addWallToMap(old.drawStart.x, old.drawStart.y, old.updatedMousePos.x - old.drawStart.x, old.updatedMousePos.y - old.drawStart.y);
-        }
-        if (keys["r"] && !old.drawing) {
-            old.drawing = true;
-            console.log("e");
-            old.drawStart = old.updatedMousePos;
-        }
+            if (!keys["r"] && old.drawing) {
+                old.drawing = false;
+                mapDB.addWallToMap(old.drawStart.x, old.drawStart.y, old.updatedMousePos.x - old.drawStart.x, old.updatedMousePos.y - old.drawStart.y);
+            }
+            if (keys["r"] && !old.drawing) {
+                old.drawing = true;
+                old.drawStart = old.updatedMousePos;
+            }
 
-        players.set(socket.id, old);
-        io.to(socket.id).emit("playerUpdate", Array.from(players.values()));
-        io.to(socket.id).emit("wallsUpdate", mapDB.getMap());
+            players.set(socket.id, old);
+            io.to(socket.id).emit("playerUpdate", Array.from(players.values()));
+            io.to(socket.id).emit("wallsUpdate", mapDB.getMap());
+            physics.boundPlayerWalls(players.get(socket.id), mapDB.getMap());
+        } catch(e){ }
     });
     socket.on("mousePosUpdate", (pos) => {
-        const old = players.get(socket.id);
-        old.updatedMousePos = pos;
-        players.set(socket.id, old);
+        try{
+            const old = players.get(socket.id);
+            old.updatedMousePos = pos;
+            players.set(socket.id, old);
+        }catch(e){ }
     });
     socket.on("disconnect", () => {
         players.delete(socket.id);
@@ -99,4 +107,4 @@ io.on("connection", (socket) => {
 
 setInterval(() => {
     mapDB.updateBalls();
-}, 50);
+}, 1000/60);
