@@ -32,6 +32,7 @@ Packages
  - simple-json-db
  - crypto
  - fs
+ - sat
 
 Software
 

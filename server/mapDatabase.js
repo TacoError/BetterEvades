@@ -72,5 +72,5 @@ module.exports = {
             newBalls.push(ball);
         });
         activeBalls = newBalls;
-    }
+    },
 };
