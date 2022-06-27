@@ -18,7 +18,6 @@ const mapDB = require("./mapDatabase.js");
 mapDB.initDatabase();
 
 const physics = require("./physics.js");
-console.log(physics);
 
 app.use(express.static("../public"));
 server.listen(config.port, () => {
@@ -27,6 +26,16 @@ server.listen(config.port, () => {
 
 const players = new Map();
 let curr = 0;
+let chatHistory = [];
+
+function addServerCM(msg) {
+    chatHistory.push({
+        name: "ADMIN",
+        message: msg
+    });
+}
+
+for (let i = 0; i <= 5; i++) addServerCM("Loading...");
 
 io.on("connection", (socket) => {
     console.log("Connection made.")
@@ -97,7 +106,16 @@ io.on("connection", (socket) => {
             const old = players.get(socket.id);
             old.updatedMousePos = pos;
             players.set(socket.id, old);
-        }catch(e){ }
+        } catch(e) { }
+    });
+    socket.on("chatSend", (chat) => {
+        if (chat.length < 1 || chat.length > 60) return;
+        const name = players.get(socket.id).name;
+        chatHistory.push({
+            name: name,
+            message: chat
+        });
+        io.emit("chat", chatHistory.slice(chatHistory.length - 5, chatHistory.length));
     });
     socket.on("disconnect", () => {
         players.delete(socket.id);

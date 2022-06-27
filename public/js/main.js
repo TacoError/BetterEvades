@@ -19,22 +19,40 @@ asapFont.load().then((font) => {
 const socket = io("/");
 
 let canvas, ctx;
+let inputBox;
+let chatText;
+
 let id = -1;
 // R = Draw box
-let heldKeys = {"w": false, "a": false, "s": false, "d": false, "r": false, "Shift": false};
+let heldKeys = {"w": false, "a": false, "s": false, "d": false, "r": false, "shift": false};
 let players = [];
 let walls = [];
 // Mouse to real canvas positions
 let mx, my;
 
+function handleFinishTexting(e) {
+    if (e.key === "Enter") {
+        inputBox.blur();
+        socket.emit("chatSend", inputBox.value);
+        inputBox.value = "";
+    }
+}
+
 window.addEventListener("mousemove", (move) => {
-   const cBR = canvas.getBoundingClientRect();
-   mx = Math.round(move.clientX - cBR.left);
-   my = Math.round(move.clientY - cBR.top);
+    try {
+        const cBR = canvas.getBoundingClientRect();
+        mx = Math.round(move.clientX - cBR.left);
+        my = Math.round(move.clientY - cBR.top);
+    } catch(_) {}
 });
 
 window.addEventListener("keydown", (key) => {
     const k = key.key.toLowerCase();
+    if (k === "enter") {
+        inputBox.focus();
+        return;
+    }
+    if (inputBox === document.activeElement) return;
     heldKeys[k] = true;
 });
 window.addEventListener("keyup", (key) => {
@@ -44,6 +62,14 @@ window.addEventListener("keyup", (key) => {
 
 socket.on("registerResponse", (response) => {
     document.getElementById("update").innerHTML = response;
+});
+
+socket.on("chat", (chat) => {
+    let n = [];
+    chat.forEach(c => {
+       n.push(c.name + ": " + c.message);
+    });
+    chatText.innerHTML = n.join("<br>");
 });
 
 socket.on("loginResponse", (response, go) => {
@@ -138,6 +164,19 @@ function runGame() {
     canvas.height = window.innerHeight;
     ctx = canvas.getContext("2d");
     document.body.appendChild(canvas);
+    inputBox = document.createElement("input");
+    inputBox.type = "text";
+    inputBox.style.position = "fixed";
+    inputBox.style.left = "0px";
+    inputBox.style.top = "120px";
+    inputBox.onkeydown = handleFinishTexting;
+    chatText = document.createElement("p");
+    chatText.style.position = "fixed";
+    chatText.style.left = "0px";
+    chatText.style.top = "0px";
+    chatText.style.color = "white";
+    document.body.appendChild(chatText);
+    document.body.appendChild(inputBox);
     runKeyUpdate();
     animate();
 }
