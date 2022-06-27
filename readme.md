@@ -18,6 +18,8 @@ That's about all.
 
 `cd BetterEvades`
 
+`npm install`
+
 `cd server`
 
 `node .`
